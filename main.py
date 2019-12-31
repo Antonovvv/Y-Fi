@@ -19,22 +19,34 @@ class MainWindow(QMainWindow):
         self.base()
 
     def base(self):
-        self.setWindowTitle('Controller')
-        self.resize(320, 960)
-        self.move(0, 0)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.MSWindowsFixedSizeDialogHint)
+        self.init_window()
 
-        self.statusBar()
-        self.add_buttons()
+        # self.add_buttons()
         self.add_freq_selector()
         self.add_power_slider()
         self.show()
 
-        self.model_init()
+        # self.init_model()
 
-    def add_buttons(self):
-        pass
-        '''freq_btn = QPushButton('change', self)
+    def init_window(self):
+        self.setWindowTitle('Controller')
+        self.resize(360, 960)
+        self.move(0, 0)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.MSWindowsFixedSizeDialogHint)
+
+        self.statusBar()
+
+        menubar = self.menuBar()
+        mode_menu = menubar.addMenu('控制')
+
+        mode_model = QAction('模型', self)
+        mode_menu.addAction(mode_model)
+
+        mode_wifi = QAction('wifi', self)
+        mode_menu.addAction(mode_wifi)
+
+    '''def add_buttons(self):
+        freq_btn = QPushButton('添加wifi', self)
         freq_btn.resize(120, 60)
         freq_btn.move(100, 80)
         freq_btn.clicked.connect(self.change_wifi)'''
@@ -78,7 +90,7 @@ class MainWindow(QMainWindow):
         screen = QDesktopWidget().availableGeometry()
         return screen.width(), screen.height()
 
-    def model_init(self):
+    def init_model(self):
         glutInit()
         display_mode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
         glutInitDisplayMode(display_mode)
