@@ -2,14 +2,11 @@
 # from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-import sys
 # from OpenGL.GL import *
 # from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import numpy as np
-
-from model import GLWindow
+from test.test import GLWindow
 
 
 class MainWindow(QMainWindow):

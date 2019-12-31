@@ -1,14 +1,9 @@
 # -*- coding:utf-8 -*-
-from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-import sys
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
-import numpy as np
 
-from draw import *
+from UI.draw import *
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
 class GLWindow(QOpenGLWidget):
@@ -17,8 +12,9 @@ class GLWindow(QOpenGLWidget):
 
     def initializeGL(self):
         glutInit()
-        displayMode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
-        glutInitDisplayMode(displayMode)
+        '''displayMode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
+        glutInitDisplayMode(displayMode)'''
+        # glutCreateWindow('Triangle')
 
         glClearColor(0, 0, 0, 1.0)
         glEnable(GL_DEPTH_TEST)     # 开启深度测试，实现遮挡关系

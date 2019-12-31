@@ -12,27 +12,38 @@ from OpenGL.GLUT import *
 
 import numpy as np
 
-from model import GLWindow
+from model import GLWindow, Building, Source
 
 
 class Controller(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
         self.setupUi(self)
-        self.tabWidget.hide()
-        self.glwindow = GLWindow()
+        # self.tabWidget.hide()
         self.sources = []
         self.add_event()
 
     def add_event(self):
         self.new_file.triggered.connect(self.new_model)
+
         self.spin_floors.valueChanged[int].connect(self.on_floors_changed)
+        self.spin_rooms.valueChanged[int].connect(self.on_rooms_changed)
+        self.spin_floor_thickness.valueChanged[float].connect(self.on_floor_thickness_changed)
+
         self.source_selector.activated[int].connect(self.on_source_selected)
         self.button_new_source.clicked.connect(self.new_source)
 
     def on_floors_changed(self, value):
-        self.glwindow.floors = value
-        glutPostRedisplay()
+        self.glwindow.building.floors = value
+        self.glwindow.update()
+
+    def on_rooms_changed(self, value):
+        self.glwindow.building.rooms = value
+        self.glwindow.update()
+
+    def on_floor_thickness_changed(self, value):
+        self.glwindow.building.floor_thickness = value
+        self.glwindow.update()
 
     def on_source_selected(self, value):
         self.stackedWidget.setCurrentIndex(value + 1)
@@ -46,8 +57,13 @@ class Controller(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentIndex(len(self.sources) + 1)
 
     def new_model(self):
-        self.tabWidget.show()
-        glutInit()
+        # self.tabWidget.show()
+        building = Building()
+        self.glwindow = GLWindow(building)
+        self.model_view.addWidget(self.glwindow)
+        self.model_view.setCurrentIndex(2)
+
+        '''glutInit()
         display_mode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
         glutInitDisplayMode(display_mode)
 
@@ -63,7 +79,10 @@ class Controller(QMainWindow, Ui_MainWindow):
         glutMotionFunc(self.glwindow.mouse_motion)  # 注册响应鼠标拖拽的函数
         glutKeyboardFunc(self.glwindow.keydown)     # 注册键盘输入的函数keydown()
         glutSpecialFunc(self.glwindow.move_wifi)
-        glutMainLoop()
+        glutMainLoop()'''
+
+    def resizeEvent(self, e):
+        self.model_view.resize(e.size().width()-360, e.size().height())
 
 
 class WifiController(QWidget, Ui_WifiBox):
