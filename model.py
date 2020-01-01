@@ -28,6 +28,7 @@ class GLWindow(QOpenGLWidget):
         self.building = building
         self.sources = []
         self.active_source = 0
+        # self.grabKeyboard()
 
     def initializeGL(self):
         glClearColor(0, 0, 0, 1.0)
@@ -195,7 +196,6 @@ class GLWindow(QOpenGLWidget):
             self.update()
 
     def keyPressEvent(self, e):
-        e.accept()
         key = e.key()
         mod = e.modifiers()
         speed = 0.4

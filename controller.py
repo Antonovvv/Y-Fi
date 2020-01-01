@@ -61,6 +61,7 @@ class Controller(QMainWindow, Ui_MainWindow):
         # self.tabWidget.show()
         building = Building()
         self.glwindow = GLWindow(building)
+        self.glwindow.setFocusPolicy(Qt.ClickFocus)
         self.model_view.addWidget(self.glwindow)
         self.model_view.setCurrentIndex(2)
 
