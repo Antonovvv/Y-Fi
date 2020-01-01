@@ -216,7 +216,7 @@ class GLWindow:
     def keydown(self, key, x, y):
         speed = 0.4
         if key in [b'a', b'd', b' ', b'c', b'w', b's']:
-            if key == b'd':  # 瞄准参考点 x 减小
+            if key == b'd':     # 瞄准参考点 x 减小
                 self.dx -= speed
             elif key == b'a':  # 瞄准参考 x 增大
                 self.dx += speed

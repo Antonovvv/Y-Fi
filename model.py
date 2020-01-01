@@ -27,11 +27,16 @@ class GLWindow(QOpenGLWidget):
         self.DIST, self.PHI, self.THETA = self.get_posture()  # 眼睛与观察目标之间的距离、仰角、方位角
         self.building = building
         self.sources = []
+        self.active_source = 0
 
     def initializeGL(self):
         glClearColor(0, 0, 0, 1.0)
         glEnable(GL_DEPTH_TEST)     # 开启深度测试，实现遮挡关系
         glDepthFunc(GL_LEQUAL)      # 设置深度测试函数,GL_LEQUAL只是选项之一
+
+        glutInit()
+        displayMode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
+        glutInitDisplayMode(displayMode)
 
     def get_posture(self):
         dist = np.sqrt(np.power((self.EYE-self.LOOK_AT), 2).sum())
@@ -88,9 +93,8 @@ class GLWindow(QOpenGLWidget):
         glTranslatef(self.dx, self.dy, self.dz)
 
         sqare = [[-1, -1], [-1, 1], [1, 1], [1, -1]]
-        color_wall = [0.9, 0.9, 0.9]
+        # color_wall = [0.9, 0.9, 0.9]
         color_land = [0.9, 0.9, 0.9]
-        room_size = [20.0, 10.0, 6.0]
         land = 100.0
 
         # 绘制地面
@@ -117,12 +121,12 @@ class GLWindow(QOpenGLWidget):
         # 绘制信号强度球面
         for source in self.sources:
             glPushMatrix()
-            glTranslatef(source['position']['x'], self.wifi_y, self.wifi_z)
+            glTranslatef(source.position[0], source.position[1], source.position[2])
             # r = 0.01
-            for i in range(self.wave_by_power[self.wifi_type] * self.power):
-                r = (i + 1) * self.span[self.wifi_type]
-                s = self.power - self.damp(self.freqs[self.wifi_type], r)
-                alpha = np.power(10, (s + 50) / 20) / 5
+            for i in range(source.wave):
+                r = (i + 1) * source.span
+                s = source.power - source.damp(r)
+                alpha = np.power(10, (s + 50) / 20) / 8
                 if s > -50:
                     glColor4f(0.75, 0, 0, alpha)
                 elif -50 > s > -70:
@@ -137,16 +141,12 @@ class GLWindow(QOpenGLWidget):
                 # r += (-s) / 200
                 # glutWireSphere(r, 32, 32)
 
-                # sphere = gluNewQuadric()
-                # gluSphere(sphere, r, 16, 16)
+                sphere = gluNewQuadric()
+                gluSphere(sphere, r, 16, 16)
             glPopMatrix()
 
         # 切换缓冲区，以显示绘制内容
         # glutSwapBuffers()
-
-    # 衰减dBm
-    def damp(self, freq, r):
-        return self.damping[self.wifi_type] + 32.45 + 20 * np.log10(freq) + 20 * np.log10(r / 1000)
 
     def resizeGL(self, width, height):
         self.WIN_W, self.WIN_H = width, height
@@ -195,7 +195,42 @@ class GLWindow(QOpenGLWidget):
             self.update()
 
     def keyPressEvent(self, e):
-        pass
+        e.accept()
+        key = e.key()
+        mod = e.modifiers()
+        speed = 0.4
+        if key in [Qt.Key_W, Qt.Key_A, Qt.Key_S, Qt.Key_D, Qt.Key_Space, Qt.Key_C]:
+            if key == Qt.Key_W:
+                self.dz += speed
+            elif key == Qt.Key_S:
+                self.dz -= speed
+            elif key == Qt.Key_A:
+                self.dx += speed
+            elif key == Qt.Key_D:
+                self.dx -= speed
+            elif key == Qt.Key_Space:
+                self.dy -= speed
+            elif key == Qt.Key_C:
+                self.dy += speed
+            self.update()
+        if self.active_source >= 0:
+            active = self.active_source
+            if key in [Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right]:
+                if mod == Qt.ControlModifier:
+                    if key == Qt.Key_Up:
+                        self.sources[active].position[1] += speed
+                    elif key == Qt.Key_Down:
+                        self.sources[active].position[1] -= speed
+                else:
+                    if key == Qt.Key_Up:
+                        self.sources[active].position[2] -= speed
+                    elif key == Qt.Key_Down:
+                        self.sources[active].position[2] += speed
+                    elif key == Qt.Key_Left:
+                        self.sources[active].position[0] -= speed
+                    elif key == Qt.Key_Right:
+                        self.sources[active].position[0] += speed
+                self.update()
 
 
 class Building:
@@ -219,7 +254,13 @@ class Source:
         self.power = power,
         self.type = type,
         self.position = [pos_x, pos_y, pos_z]
-        self.wave = self.WAVE_BY_POWER[type] * self.power      # 波数量
+        self.wave = self.WAVE_BY_POWER[type] * power      # 波数量
+        self.span = self.SPAN[type]
+        self.damping = self.DAMPING[type]
+
+    def damp(self, r):
+        # 衰减值(dBm)
+        return self.damping + 32.45 + 20 * np.log10(self.freq) + 20 * np.log10(r / 1000)
 
 
 if __name__ == '__main__':
@@ -231,6 +272,9 @@ if __name__ == '__main__':
 
     building = Building(floors=5, rooms=5, floor_thickness=1, room_length=12, room_width=6, room_height=5, wall_thickness=0.2)
     glwindow = GLWindow(building)
+    source = Source()
+    glwindow.sources.append(source)
+
     glwindow.setGeometry(200, 200, 960, 680)
     glwindow.show()
     sys.exit(app.exec_())

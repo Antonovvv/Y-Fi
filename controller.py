@@ -49,9 +49,10 @@ class Controller(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentIndex(value + 1)
 
     def new_source(self):
-        self.source_selector.addItem('wifi_' + str(len(self.sources)))
-        new = WifiController()
+        new = WifiController(self.glwindow)
         self.sources.append(1)
+
+        self.source_selector.addItem('wifi_' + str(len(self.sources)))
         self.stackedWidget.addWidget(new)
         self.source_selector.setCurrentIndex(len(self.sources))
         self.stackedWidget.setCurrentIndex(len(self.sources) + 1)
@@ -63,32 +64,18 @@ class Controller(QMainWindow, Ui_MainWindow):
         self.model_view.addWidget(self.glwindow)
         self.model_view.setCurrentIndex(2)
 
-        '''glutInit()
-        display_mode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
-        glutInitDisplayMode(display_mode)
-
-        # gl_width, gl_height = self.get_screen()
-        glutInitWindowPosition(0, 0)
-        # glutInitWindowSize(gl_width, gl_height)
-        glutCreateWindow('model')
-
-        self.glwindow.init()
-        glutDisplayFunc(self.glwindow.draw)
-        glutReshapeFunc(self.glwindow.reshape)      # 注册响应窗口改变的函数reshape()
-        glutMouseFunc(self.glwindow.mouse_click)    # 注册响应鼠标点击的函数
-        glutMotionFunc(self.glwindow.mouse_motion)  # 注册响应鼠标拖拽的函数
-        glutKeyboardFunc(self.glwindow.keydown)     # 注册键盘输入的函数keydown()
-        glutSpecialFunc(self.glwindow.move_wifi)
-        glutMainLoop()'''
-
     def resizeEvent(self, e):
         self.model_view.resize(e.size().width()-360, e.size().height())
 
 
 class WifiController(QWidget, Ui_WifiBox):
-    def __init__(self, parent=None):
+    def __init__(self, glwindow, parent=None):
         super(WifiController, self).__init__(parent)
         self.setupUi(self)
+        self.source = Source()
+        self.glwindow = glwindow
+        self.glwindow.sources.append(self.source)
+        self.glwindow.update()
 
 
 if __name__ == '__main__':
