@@ -14,7 +14,7 @@ from UI.draw import *
 class GLWindow(QOpenGLWidget):
     VIEW = np.array([-0.8, 0.8, -0.8, 0.8, 1.0, 1000.0])  # 视景体的left/right/bottom/top/near/far六个面
     SCALE_K = np.array([1.0, 1.0, 1.0])         # 模型缩放比例
-    EYE = np.array([0.0, 5.0, 20.0])            # 眼睛的位置（默认z轴的正方向）
+    EYE = np.array([0.0, 5.0, 10.0])            # 眼睛的位置（默认z轴的正方向）
     LOOK_AT = np.array([0.0, 0.0, 0.0])         # 瞄准方向的参考点（默认在坐标原点）
     EYE_UP = np.array([0.0, 4.0, 0.0])          # 定义对观察者而言的上方（默认y轴的正方向）
     WIN_W, WIN_H = 960, 680                     # 保存窗口宽度和高度的变量
@@ -25,6 +25,7 @@ class GLWindow(QOpenGLWidget):
     def __init__(self, building, parent=None):
         super(GLWindow, self).__init__(parent)
         self.DIST, self.PHI, self.THETA = self.get_posture()  # 眼睛与观察目标之间的距离、仰角、方位角
+        self.zoom = 0
         self.building = building
         self.sources = []
         self.active_source = 0
@@ -121,30 +122,33 @@ class GLWindow(QOpenGLWidget):
 
         # 绘制信号强度球面
         for source in self.sources:
-            glPushMatrix()
-            glTranslatef(source.position[0], source.position[1], source.position[2])
-            # r = 0.01
-            for i in range(source.wave):
-                r = (i + 1) * source.span
-                s = source.power - source.damp(r)
-                alpha = np.power(10, (s + 50) / 20) / 8
-                if s > -50:
-                    glColor4f(0.75, 0, 0, alpha)
-                elif -50 > s > -70:
-                    glColor4f(0.75 + (-s - 50) / 80, 0, 0, alpha)
-                elif -70 > s > -80:  # 红到黄
-                    glColor4f(1, (-s - 70) / 10, 0, alpha)
-                elif -80 > s > -90:  # 黄到绿
-                    glColor4f(1 - (-s - 80) / 10, 1, 0, alpha)
-                else:
+            if source.show:
+                glDepthMask(GL_FALSE)
+                glPushMatrix()
+                glTranslatef(source.position[0], source.position[1], source.position[2])
+                # r = 0.01
+                for i in range(source.wave):
+                    r = (i + 1) * source.span
+                    s = source.power - source.damp(r)
+                    alpha = np.power(10, (s + 50) / 20) / 8
+                    if s > -50:
+                        glColor4f(0.75, 0, 0, alpha)
+                    elif -50 > s > -70:
+                        glColor4f(0.75 + (-s - 50) / 80, 0, 0, alpha)
+                    elif -70 > s > -80:  # 红到黄
+                        glColor4f(1, (-s - 70) / 10, 0, alpha)
+                    elif -80 > s > -90:  # 黄到绿
+                        glColor4f(1 - (-s - 80) / 10, 1, 0, alpha)
+                    else:
+                        # r += (-s) / 200
+                        break
                     # r += (-s) / 200
-                    break
-                # r += (-s) / 200
-                # glutWireSphere(r, 32, 32)
+                    # glutWireSphere(r, 32, 32)
+                    sphere = gluNewQuadric()
+                    gluSphere(sphere, r, 16, 16)
 
-                sphere = gluNewQuadric()
-                gluSphere(sphere, r, 16, 16)
-            glPopMatrix()
+                glPopMatrix()
+                glDepthMask(GL_TRUE)
 
         # 切换缓冲区，以显示绘制内容
         # glutSwapBuffers()
@@ -186,13 +190,15 @@ class GLWindow(QOpenGLWidget):
             self.update()
 
     def wheelEvent(self, e):
-        if e.angleDelta().y() >= 120:
+        if e.angleDelta().y() >= 120 and self.zoom > -11:
             self.EYE = self.LOOK_AT + (self.EYE - self.LOOK_AT) * 0.95
             self.DIST, self.PHI, self.THETA = self.get_posture()
+            self.zoom -= 1
             self.update()
-        elif e.angleDelta().y() <= -120:
+        elif e.angleDelta().y() <= -120 and self.zoom < 11:
             self.EYE = self.LOOK_AT + (self.EYE - self.LOOK_AT) / 0.95
             self.DIST, self.PHI, self.THETA = self.get_posture()
+            self.zoom += 1
             self.update()
 
     def keyPressEvent(self, e):
@@ -246,15 +252,23 @@ class Building:
 class Source:
     FREQS = [5000, 2400]        # 发射频段
     DAMPING = [20, 25]          # 衰减补偿
-    SPAN = [0.2, 0.3]           # 波间隔
-    WAVE_BY_POWER = [10, 5]     # 波数与发射功率之比
+    SPAN = [0.5, 0.75]           # 波间隔
+    WAVE_BY_POWER = [4, 2]     # 波数与发射功率之比
 
-    def __init__(self, power=15, type=0, pos_x=0.0, pos_y=0.0, pos_z=0.0):
-        self.freq = self.FREQS[type],
-        self.power = power,
-        self.type = type,
+    def __init__(self, power=15, type=0, pos_x=0.0, pos_y=1.0, pos_z=0.0):
+        self.show = True
+        self.freq = self.FREQS[type]
+        self.power = power
+        self.type = type
         self.position = [pos_x, pos_y, pos_z]
-        self.wave = self.WAVE_BY_POWER[type] * power      # 波数量
+        self.wave = self.WAVE_BY_POWER[type] * power
+        self.span = self.SPAN[type]
+        self.damping = self.DAMPING[type]
+
+    def freq_change(self, type):
+        self.type = type
+        self.freq = self.FREQS[type]
+        self.wave = self.WAVE_BY_POWER[type] * self.power
         self.span = self.SPAN[type]
         self.damping = self.DAMPING[type]
 
@@ -274,6 +288,8 @@ if __name__ == '__main__':
     glwindow = GLWindow(building)
     source = Source()
     glwindow.sources.append(source)
+    source2 = Source(pos_x=10)
+    glwindow.sources.append(source2)
 
     glwindow.setGeometry(200, 200, 960, 680)
     glwindow.show()
