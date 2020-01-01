@@ -61,7 +61,6 @@ class GLWindow(QOpenGLWidget):
         # 设置投影（透视投影）
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-
         width = self.WIN_W
         height = self.WIN_H
         view = self.VIEW
@@ -73,11 +72,9 @@ class GLWindow(QOpenGLWidget):
         # 设置模型视图
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-
         # 几何变换
         scale = self.SCALE_K
         glScale(scale[0], scale[1], scale[2])
-
         # 设置视点
         eye = self.EYE
         eye_up = self.EYE_UP
@@ -87,68 +84,19 @@ class GLWindow(QOpenGLWidget):
             look_at[0], look_at[1], look_at[2],
             eye_up[0], eye_up[1], eye_up[2]
         )
-
         # 设置视口
         glViewport(0, 0, width, height)
-
         # 平移
         glTranslatef(self.dx, self.dy, self.dz)
 
-        sqare = [[-1, -1], [-1, 1], [1, 1], [1, -1]]
-        # color_wall = [0.9, 0.9, 0.9]
-        color_land = [0.9, 0.9, 0.9]
-        land = 100.0
-
         # 绘制地面
-        glBegin(GL_POLYGON)
-        for i in range(4):
-            glColor4f(color_land[0], color_land[1], color_land[2], 1.0)
-            glVertex3f(sqare[i][0] * land, 0, sqare[i][1] * land)
-        glEnd()
-
+        draw_land(100)
         # 绘制房间
-        for i in range(self.building.floors):
-            for j in range(self.building.rooms):
-                if self.building.rooms % 2 == 0:
-                    pos_x = (self.building.room_size[0] / 2 + self.building.wall_thickness) * pow(-1, j) * (2 * (j // 2) + 1)
-                else:
-                    pos_x = (self.building.room_size[0] + 2 * self.building.wall_thickness) * pow(-1, j + 1) * ((j + 1) // 2)
-                pos_y = (self.building.room_size[2] + self.building.floor_thickness) * i
-                draw_wall(position=[pos_x, pos_y, 0], size=self.building.room_size, thickness=self.building.wall_thickness)
-            floor_height = self.building.room_size[2] + (self.building.room_size[2] + self.building.floor_thickness) * i
-            floor_length = self.building.rooms * (self.building.room_size[0] + 2 * self.building.wall_thickness)
-            floor_width = self.building.room_size[1] + 2 * self.building.wall_thickness
-            draw_floor(position=[0, floor_height, 0], length=floor_length, width=floor_width, thickness=self.building.floor_thickness)
-
+        self.building.draw()
         # 绘制信号强度球面
         for source in self.sources:
             if source.show:
-                glDepthMask(GL_FALSE)
-                glPushMatrix()
-                glTranslatef(source.position[0], source.position[1], source.position[2])
-                # r = 0.01
-                for i in range(source.wave):
-                    r = (i + 1) * source.span
-                    s = source.power - source.damp(r)
-                    alpha = np.power(10, (s + 50) / 20) / 8
-                    if s > -50:
-                        glColor4f(0.75, 0, 0, alpha)
-                    elif -50 > s > -70:
-                        glColor4f(0.75 + (-s - 50) / 80, 0, 0, alpha)
-                    elif -70 > s > -80:  # 红到黄
-                        glColor4f(1, (-s - 70) / 10, 0, alpha)
-                    elif -80 > s > -90:  # 黄到绿
-                        glColor4f(1 - (-s - 80) / 10, 1, 0, alpha)
-                    else:
-                        # r += (-s) / 200
-                        break
-                    # r += (-s) / 200
-                    # glutWireSphere(r, 32, 32)
-                    sphere = gluNewQuadric()
-                    gluSphere(sphere, r, 16, 16)
-
-                glPopMatrix()
-                glDepthMask(GL_TRUE)
+                source.draw()
 
         # 切换缓冲区，以显示绘制内容
         # glutSwapBuffers()
@@ -248,6 +196,23 @@ class Building:
         self.room_size = [room_length, room_width, room_height]
         self.wall_thickness = wall_thickness
 
+    def draw(self):
+        # 绘制房间
+        for i in range(self.floors):
+            for j in range(self.rooms):
+                if self.rooms % 2 == 0:
+                    pos_x = (self.room_size[0] / 2 + self.wall_thickness) * pow(-1, j) * (
+                                2 * (j // 2) + 1)
+                else:
+                    pos_x = (self.room_size[0] + 2 * self.wall_thickness) * pow(-1, j + 1) * (
+                                (j + 1) // 2)
+                pos_y = (self.room_size[2] + self.floor_thickness) * i
+                draw_wall(position=[pos_x, pos_y, 0], size=self.room_size, thickness=self.wall_thickness)
+            floor_height = self.room_size[2] + (self.room_size[2] + self.floor_thickness) * i
+            floor_length = self.rooms * (self.room_size[0] + 2 * self.wall_thickness)
+            floor_width = self.room_size[1] + 2 * self.wall_thickness
+            draw_floor(position=[0, floor_height, 0], length=floor_length, width=floor_width, thickness=self.floor_thickness)
+
 
 class Source:
     FREQS = [5000, 2400]        # 发射频段
@@ -275,6 +240,34 @@ class Source:
     def damp(self, r):
         # 衰减值(dBm)
         return self.damping + 32.45 + 20 * np.log10(self.freq) + 20 * np.log10(r / 1000)
+
+    def draw(self):
+        glDepthMask(GL_FALSE)
+        glPushMatrix()
+        glTranslatef(self.position[0], self.position[1], self.position[2])
+        # r = 0.01
+        for i in range(self.wave):
+            r = (i + 1) * self.span
+            s = self.power - self.damp(r)
+            alpha = np.power(10, (s + 50) / 20) / 8
+            if s > -50:
+                glColor4f(0.75, 0, 0, alpha)
+            elif -50 > s > -70:
+                glColor4f(0.75 + (-s - 50) / 80, 0, 0, alpha)
+            elif -70 > s > -80:  # 红到黄
+                glColor4f(1, (-s - 70) / 10, 0, alpha)
+            elif -80 > s > -90:  # 黄到绿
+                glColor4f(1 - (-s - 80) / 10, 1, 0, alpha)
+            else:
+                # r += (-s) / 200
+                break
+            # r += (-s) / 200
+            # glutWireSphere(r, 32, 32)
+            sphere = gluNewQuadric()
+            gluSphere(sphere, r, 16, 16)
+
+        glPopMatrix()
+        glDepthMask(GL_TRUE)
 
 
 if __name__ == '__main__':

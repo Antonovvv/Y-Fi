@@ -4,9 +4,11 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import numpy as np
 
+color_land = [0.9, 0.9, 0.9]
 color_wall = [0.5, 0.5, 0.5]
 color_floor = [0.3, 0.3, 0.3]
 quad = [[-1, 1], [-1, -1], [1, -1], [1, 1], [-1, 1]]
+sqare = [[-1, -1], [-1, 1], [1, 1], [1, -1]]
 wall_alpha = 0.6
 
 
@@ -72,4 +74,13 @@ def draw_floor(position, length, width, thickness):
     glVertex3f(position[0] - length / 2, position[1] + thickness, position[2] + width / 2)
     glVertex3f(position[0] - length / 2, position[1] + thickness, position[2] - width / 2)
     glVertex3f(position[0] + length / 2, position[1] + thickness, position[2] - width / 2)
+    glEnd()
+
+
+def draw_land(length):
+    # 绘制地面
+    glBegin(GL_POLYGON)
+    for i in range(4):
+        glColor4f(color_land[0], color_land[1], color_land[2], 1.0)
+        glVertex3f(sqare[i][0] * length, 0, sqare[i][1] * length)
     glEnd()
