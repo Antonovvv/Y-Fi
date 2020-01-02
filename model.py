@@ -22,6 +22,10 @@ class GLWindow(QOpenGLWidget):
     MOUSE_X, MOUSE_Y = 0, 0                     # 考察鼠标位移量时保存的起始位置
     dx, dy, dz = 0, 0, 0                        # 观察点平移偏移量
 
+    source_x_changed = pyqtSignal(float)        # 自定义wifi位置变化的信号
+    source_y_changed = pyqtSignal(float)
+    source_z_changed = pyqtSignal(float)
+
     def __init__(self, building, parent=None):
         super(GLWindow, self).__init__(parent)
         self.DIST, self.PHI, self.THETA = self.get_posture()  # 眼睛与观察目标之间的距离、仰角、方位角
@@ -138,12 +142,12 @@ class GLWindow(QOpenGLWidget):
             self.update()
 
     def wheelEvent(self, e):
-        if e.angleDelta().y() >= 120 and self.zoom > -11:
+        if e.angleDelta().y() >= 120 and self.zoom > -15:
             self.EYE = self.LOOK_AT + (self.EYE - self.LOOK_AT) * 0.95
             self.DIST, self.PHI, self.THETA = self.get_posture()
             self.zoom -= 1
             self.update()
-        elif e.angleDelta().y() <= -120 and self.zoom < 11:
+        elif e.angleDelta().y() <= -120 and self.zoom < 15:
             self.EYE = self.LOOK_AT + (self.EYE - self.LOOK_AT) / 0.95
             self.DIST, self.PHI, self.THETA = self.get_posture()
             self.zoom += 1
@@ -173,17 +177,23 @@ class GLWindow(QOpenGLWidget):
                 if mod == Qt.ControlModifier:
                     if key == Qt.Key_Up:
                         self.sources[active].position[1] += speed
+                        self.source_y_changed.emit(self.sources[active].position[1])
                     elif key == Qt.Key_Down:
                         self.sources[active].position[1] -= speed
+                        self.source_y_changed.emit(self.sources[active].position[1])
                 else:
                     if key == Qt.Key_Up:
                         self.sources[active].position[2] -= speed
+                        self.source_z_changed.emit(self.sources[active].position[2])
                     elif key == Qt.Key_Down:
                         self.sources[active].position[2] += speed
+                        self.source_z_changed.emit(self.sources[active].position[2])
                     elif key == Qt.Key_Left:
                         self.sources[active].position[0] -= speed
+                        self.source_x_changed.emit(self.sources[active].position[0])
                     elif key == Qt.Key_Right:
                         self.sources[active].position[0] += speed
+                        self.source_x_changed.emit(self.sources[active].position[0])
                 self.update()
 
 

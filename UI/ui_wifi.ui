@@ -36,7 +36,14 @@
     </property>
     <layout class="QGridLayout" name="gridLayout_3">
      <item row="4" column="3">
-      <widget class="QDoubleSpinBox" name="spin_z"/>
+      <widget class="QDoubleSpinBox" name="spin_z">
+       <property name="minimum">
+        <double>-99.989999999999995</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
      </item>
      <item row="1" column="2" colspan="2">
       <widget class="QSlider" name="power_slider">
@@ -68,7 +75,14 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QDoubleSpinBox" name="spin_x"/>
+      <widget class="QDoubleSpinBox" name="spin_x">
+       <property name="minimum">
+        <double>-99.989999999999995</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0" colspan="2">
       <widget class="QLabel" name="power_label">
@@ -92,7 +106,14 @@
       </widget>
      </item>
      <item row="4" column="2">
-      <widget class="QDoubleSpinBox" name="spin_y"/>
+      <widget class="QDoubleSpinBox" name="spin_y">
+       <property name="minimum">
+        <double>-99.989999999999995</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
      </item>
      <item row="0" column="0" colspan="2">
       <widget class="QLabel" name="label">
