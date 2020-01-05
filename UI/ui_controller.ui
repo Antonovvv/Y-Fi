@@ -299,23 +299,18 @@
      <widget class="QComboBox" name="source_selector">
       <property name="geometry">
        <rect>
-        <x>90</x>
+        <x>50</x>
         <y>20</y>
-        <width>171</width>
-        <height>21</height>
+        <width>141</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="currentText">
-       <string extracomment="new source">new source</string>
+       <string extracomment="new source"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>-1</number>
       </property>
-      <item>
-       <property name="text">
-        <string>new source</string>
-       </property>
-      </item>
      </widget>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="geometry">
@@ -327,136 +322,21 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>-1</number>
       </property>
-      <widget class="QWidget" name="page_new"/>
-      <widget class="QWidget" name="page_use">
-       <widget class="QGroupBox" name="groupBox">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>331</width>
-          <height>261</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>wifi参数</string>
-        </property>
-        <widget class="QWidget" name="gridLayoutWidget_3">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>311</width>
-           <height>131</height>
-          </rect>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="2" colspan="2">
-           <widget class="QComboBox" name="comboBox_2">
-            <item>
-             <property name="text">
-              <string>5.0GHz</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>2.4GHz</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>y坐标</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>发射功率(dBm)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="3">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
-          </item>
-          <item row="2" column="3">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>z坐标</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>x坐标</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
-          </item>
-          <item row="3" column="2">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
-          </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>发射频段</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2" colspan="2">
-           <widget class="QSlider" name="horizontalSlider">
-            <property name="minimum">
-             <number>10</number>
-            </property>
-            <property name="maximum">
-             <number>20</number>
-            </property>
-            <property name="value">
-             <number>15</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::TicksAbove</enum>
-            </property>
-            <property name="tickInterval">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" rowspan="2">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>位置</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QPushButton" name="button_new_source">
-         <property name="geometry">
-          <rect>
-           <x>140</x>
-           <y>170</y>
-           <width>56</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>new</string>
-         </property>
-        </widget>
-       </widget>
-      </widget>
+     </widget>
+     <widget class="QPushButton" name="new_source_button">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>20</y>
+        <width>56</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>new</string>
+      </property>
      </widget>
     </widget>
    </widget>
@@ -469,8 +349,6 @@
       <height>591</height>
      </rect>
     </property>
-    <widget class="QWidget" name="page"/>
-    <widget class="QWidget" name="page_2"/>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
