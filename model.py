@@ -41,8 +41,8 @@ class GLWindow(QOpenGLWidget):
         glDepthFunc(GL_LEQUAL)      # 设置深度测试函数,GL_LEQUAL只是选项之一
 
         glutInit()
-        displayMode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
-        glutInitDisplayMode(displayMode)
+        display_mode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
+        glutInitDisplayMode(display_mode)
 
     def get_posture(self):
         dist = np.sqrt(np.power((self.EYE-self.LOOK_AT), 2).sum())
@@ -176,23 +176,23 @@ class GLWindow(QOpenGLWidget):
             if key in [Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right]:
                 if mod == Qt.ControlModifier:
                     if key == Qt.Key_Up:
-                        self.sources[active].position[1] += speed
-                        self.source_y_changed.emit(self.sources[active].position[1])
+                        self.sources[active].move('up')
+                        self.source_y_changed.emit(self.sources[active].position[1])    # 传递当前位置信号
                     elif key == Qt.Key_Down:
-                        self.sources[active].position[1] -= speed
+                        self.sources[active].move('down')
                         self.source_y_changed.emit(self.sources[active].position[1])
                 else:
                     if key == Qt.Key_Up:
-                        self.sources[active].position[2] -= speed
+                        self.sources[active].move('forward')
                         self.source_z_changed.emit(self.sources[active].position[2])
                     elif key == Qt.Key_Down:
-                        self.sources[active].position[2] += speed
+                        self.sources[active].move('back')
                         self.source_z_changed.emit(self.sources[active].position[2])
                     elif key == Qt.Key_Left:
-                        self.sources[active].position[0] -= speed
+                        self.sources[active].move('left')
                         self.source_x_changed.emit(self.sources[active].position[0])
                     elif key == Qt.Key_Right:
-                        self.sources[active].position[0] += speed
+                        self.sources[active].move('right')
                         self.source_x_changed.emit(self.sources[active].position[0])
                 self.update()
 
@@ -230,26 +230,43 @@ class Source:
     SPAN = [0.5, 0.75]           # 波间隔
     WAVE_BY_POWER = [4, 2]     # 波数与发射功率之比
 
-    def __init__(self, power=15, type=0, pos_x=0.0, pos_y=1.0, pos_z=0.0):
+    def __init__(self, power=15, source_type=0, pos_x=0.0, pos_y=1.0, pos_z=0.0):
         self.show = True
-        self.freq = self.FREQS[type]
+        self.enable = True
+        self.freq = self.FREQS[source_type]
         self.power = power
-        self.type = type
+        self.type = source_type
         self.position = [pos_x, pos_y, pos_z]
-        self.wave = self.WAVE_BY_POWER[type] * power
-        self.span = self.SPAN[type]
-        self.damping = self.DAMPING[type]
+        self.wave = self.WAVE_BY_POWER[source_type] * power
+        self.span = self.SPAN[source_type]
+        self.damping = self.DAMPING[source_type]
 
-    def freq_change(self, type):
-        self.type = type
-        self.freq = self.FREQS[type]
-        self.wave = self.WAVE_BY_POWER[type] * self.power
-        self.span = self.SPAN[type]
-        self.damping = self.DAMPING[type]
+    def freq_change(self, source_type):
+        self.type = source_type
+        self.freq = self.FREQS[source_type]
+        self.wave = self.WAVE_BY_POWER[source_type] * self.power
+        self.span = self.SPAN[source_type]
+        self.damping = self.DAMPING[source_type]
 
     def damp(self, r):
         # 衰减值(dBm)
         return self.damping + 32.45 + 20 * np.log10(self.freq) + 20 * np.log10(r / 1000)
+
+    def move(self, direction):
+        speed = 0.4
+        if self.enable and direction in ['up', 'down', 'forward', 'back', 'left', 'right']:
+            if direction == 'up':
+                self.position[1] += speed
+            elif direction == 'down':
+                self.position[1] -= speed
+            elif direction == 'forward':
+                self.position[2] -= speed
+            elif direction == 'back':
+                self.position[2] += speed
+            elif direction == 'left':
+                self.position[0] -= speed
+            elif direction == 'right':
+                self.position[0] += speed
 
     def draw(self):
         glDepthMask(GL_FALSE)

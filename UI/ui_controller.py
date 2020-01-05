@@ -195,7 +195,7 @@ class Ui_MainWindow(object):
         self.label_3.setObjectName("label_3")
         self.gridLayout_3.addWidget(self.label_3, 2, 0, 2, 1)
         self.button_new_source = QtWidgets.QPushButton(self.groupBox)
-        self.button_new_source.setGeometry(QtCore.QRect(140, 180, 56, 21))
+        self.button_new_source.setGeometry(QtCore.QRect(140, 170, 56, 31))
         self.button_new_source.setObjectName("button_new_source")
         self.stackedWidget.addWidget(self.page_use)
         self.tabWidget.addTab(self.sources_page, "")
@@ -230,7 +230,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         self.source_selector.setCurrentIndex(0)
         self.stackedWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

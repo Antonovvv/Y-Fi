@@ -20,7 +20,10 @@ class Controller(QMainWindow, Ui_MainWindow):
         super(Controller, self).__init__(parent)
         self.setupUi(self)
         self.tabWidget.hide()
+
+        self.glwindow = None
         self.sources = []
+
         self.add_event()
 
     def add_event(self):
@@ -97,11 +100,13 @@ class WifiController(QWidget, Ui_WifiBox):
     def __init__(self, glwindow, parent=None):
         super(WifiController, self).__init__(parent)
         self.setupUi(self)
-        self.source = Source()
+
         self.glwindow = glwindow
-        self.index = len(glwindow.sources)
-        self.glwindow.sources.append(self.source)
+        self.index = len(glwindow.sources)      # 当前控制器对应信号源序号
+        self.glwindow.sources.append(Source())  # 新建信号源实例
         self.glwindow.update()
+        self.source = self.glwindow.sources[self.index]
+
         self.init_value()
         self.add_event()
 
@@ -111,12 +116,14 @@ class WifiController(QWidget, Ui_WifiBox):
         power_w = pow(10, power / 10)
         self.power_w.display(power_w)
 
-        self.spin_x.setValue(self.glwindow.sources[self.index].position[0])
-        self.spin_y.setValue(self.glwindow.sources[self.index].position[1])
-        self.spin_z.setValue(self.glwindow.sources[self.index].position[2])
+        self.spin_x.setValue(self.source.position[0])
+        self.spin_y.setValue(self.source.position[1])
+        self.spin_z.setValue(self.source.position[2])
 
     def add_event(self):
         self.show_check.stateChanged.connect(self.on_show_changed)
+        self.lock_check.stateChanged.connect(self.on_lock_changed)
+        self.focus_button.clicked.connect(self.focus)
         self.freq_selector.activated[int].connect(self.on_freq_changed)
         self.power_slider.valueChanged[int].connect(self.on_power_changed)
 
@@ -130,17 +137,37 @@ class WifiController(QWidget, Ui_WifiBox):
 
     def on_show_changed(self, state):
         if state == Qt.Checked:
-            self.glwindow.sources[self.index].show = True
+            self.source.show = True
+            self.lock_check.setChecked(False)   # 显示时默认解锁
         else:
-            self.glwindow.sources[self.index].show = False
+            self.source.show = False
+            self.lock_check.setChecked(True)    # 不显示时默认锁定
         self.glwindow.update()
 
+    def on_lock_changed(self, state):
+        if state == Qt.Checked:
+            self.source.enable = False
+            self.switch_all(False)
+        else:
+            self.source.enable = True
+            self.switch_all(True)
+
+    def switch_all(self, enable):
+        self.freq_selector.setEnabled(enable)
+        self.power_slider.setEnabled(enable)
+        self.spin_x.setEnabled(enable)
+        self.spin_y.setEnabled(enable)
+        self.spin_z.setEnabled(enable)
+
+    def focus(self):
+        pass
+
     def on_freq_changed(self, value):
-        self.glwindow.sources[self.index].freq_change(value)
+        self.source.freq_change(value)
         self.glwindow.update()
 
     def on_power_changed(self, value):
-        self.glwindow.sources[self.index].power = value
+        self.source.power = value
         self.power_dbm.display(value)
         power = pow(10, value / 10)
         self.power_w.display(power)
@@ -148,15 +175,15 @@ class WifiController(QWidget, Ui_WifiBox):
 
     # spin控制位置事件
     def on_pos_x_changed(self, value):
-        self.glwindow.sources[self.index].position[0] = value
+        self.source.position[0] = value
         self.glwindow.update()
 
     def on_pos_y_changed(self, value):
-        self.glwindow.sources[self.index].position[1] = value
+        self.source.position[1] = value
         self.glwindow.update()
 
     def on_pos_z_changed(self, value):
-        self.glwindow.sources[self.index].position[2] = value
+        self.source.position[2] = value
         self.glwindow.update()
 
     # 方向键控制位置绑定spin值
