@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from UI.draw import *
+from draw import *
 
 
 class GLWindow:

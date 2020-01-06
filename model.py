@@ -1,14 +1,9 @@
 # -*- coding:utf-8 -*-
-from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-import sys
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
 import numpy as np
 
-from UI.draw import *
+from draw import *
 
 
 class GLWindow(QOpenGLWidget):

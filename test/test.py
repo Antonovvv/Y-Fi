@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from PyQt5.QtWidgets import *
 
-from UI.draw import *
+from draw import *
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
