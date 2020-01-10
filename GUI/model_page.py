@@ -10,9 +10,10 @@ from model import GLWindow, Building
 
 
 class ModelPage(QWidget, Ui_ModelPage):
-    def __init__(self, parent=None):
+    def __init__(self, name='', parent=None):
         super(ModelPage, self).__init__(parent)
         self.setupUi(self)
+        self.name = name
 
         building = Building()
         self.glwindow = GLWindow(building)
