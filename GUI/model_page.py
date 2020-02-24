@@ -24,7 +24,7 @@ class ModelPage(QWidget, Ui_ModelPage):
         self.glwindow.source_x_changed[float].connect(self.pos_x_changed)
         self.glwindow.source_y_changed[float].connect(self.pos_y_changed)
         self.glwindow.source_z_changed[float].connect(self.pos_z_changed)
-        self.name = 0
+        self.source_count = 0
 
         self.add_event()
 
@@ -101,8 +101,8 @@ class ModelPage(QWidget, Ui_ModelPage):
 
         new = SourceControl(index, self.glwindow, self)
         self.stackedWidget.addWidget(new)
-        self.source_selector.addItem('wifi_' + str(self.name))
-        self.name += 1
+        self.source_selector.addItem('wifi_' + str(self.source_count))
+        self.source_count += 1
 
         self.source_selector.setCurrentIndex(index)
         self.stackedWidget.setCurrentIndex(index)

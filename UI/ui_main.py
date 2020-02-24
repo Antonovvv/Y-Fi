@@ -33,7 +33,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName("tabWidget")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1000, 18))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1000, 26))
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
         self.menu.setObjectName("menu")
@@ -46,6 +46,8 @@ class Ui_MainWindow(object):
         self.open_file = QtWidgets.QAction(MainWindow)
         self.open_file.setObjectName("open_file")
         self.save_file = QtWidgets.QAction(MainWindow)
+        self.save_file.setEnabled(False)
+        self.save_file.setVisible(True)
         self.save_file.setObjectName("save_file")
         self.menu.addAction(self.new_file)
         self.menu.addAction(self.open_file)
@@ -57,7 +59,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "YMap"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Y-Fi"))
         self.menu.setTitle(_translate("MainWindow", "File"))
         self.new_file.setText(_translate("MainWindow", "New"))
         self.open_file.setText(_translate("MainWindow", "Open"))
