@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ModelPage</class>
- <widget class="QWidget" name="ModelPage">
+ <class>FilePage</class>
+ <widget class="QWidget" name="FilePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -323,9 +323,9 @@
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>0</x>
        <y>60</y>
-       <width>331</width>
+       <width>341</width>
        <height>501</height>
       </rect>
      </property>

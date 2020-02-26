@@ -4,12 +4,12 @@ from PyQt5.QtCore import *
 # import sys
 
 from UI.ui_source_control import *
+from ext import Watcher
 
-from model import Source
 
-
-class SourceControl(QWidget, Ui_SourceControl):
+class SourceControl(QWidget, Ui_SourceControl, Watcher):
     source_delete = pyqtSignal()
+    source_modified = pyqtSignal()
 
     def __init__(self, index, glwindow, parent=None):
         super(SourceControl, self).__init__(parent)
@@ -17,22 +17,25 @@ class SourceControl(QWidget, Ui_SourceControl):
 
         # self.index = index                      # 当前控制器对应信号源序号
         self.glwindow = glwindow
-        self.glwindow.sources.append(Source())  # 新建信号源实例
-        self.glwindow.update()
         self.source = self.glwindow.sources[index]
 
         self.init_value()
         self.add_event()
 
     def init_value(self):
+        self.freq_selector.setCurrentIndex(self.source.type)
         power = self.source.power
-        self.power_dbm.display(power)
         power_w = pow(10, power / 10)
+        self.power_slider.setValue(power)
+        self.power_dbm.display(power)
         self.power_w.display(power_w)
 
         self.spin_x.setValue(self.source.position[0])
         self.spin_y.setValue(self.source.position[1])
         self.spin_z.setValue(self.source.position[2])
+
+        self.show_check.setChecked(self.source.show)
+        self.lock_check.setChecked(not self.source.enable)
 
     def add_event(self):
         self.show_check.stateChanged.connect(self.on_show_changed)
@@ -46,6 +49,7 @@ class SourceControl(QWidget, Ui_SourceControl):
         self.spin_y.valueChanged[float].connect(self.on_pos_y_changed)
         self.spin_z.valueChanged[float].connect(self.on_pos_z_changed)
 
+    @Watcher.watch_modify
     def on_show_changed(self, state):
         if state == Qt.Checked:
             self.source.show = True
@@ -55,6 +59,7 @@ class SourceControl(QWidget, Ui_SourceControl):
             self.lock_check.setChecked(True)    # 不显示时默认锁定
         self.glwindow.update()
 
+    @Watcher.watch_modify
     def on_lock_changed(self, state):
         if state == Qt.Checked:
             self.source.enable = False
@@ -64,6 +69,7 @@ class SourceControl(QWidget, Ui_SourceControl):
             self.switch_all(True)
 
     def switch_all(self, enable):
+        self.delete_button.setEnabled(enable)
         self.freq_selector.setEnabled(enable)
         self.power_slider.setEnabled(enable)
         self.spin_x.setEnabled(enable)
@@ -76,14 +82,17 @@ class SourceControl(QWidget, Ui_SourceControl):
         self.glwindow.dz = -self.source.position[2]
         self.glwindow.update()
 
-    def delete(self):
+    @Watcher.watch_modify
+    def delete(self, e):
         self.source_delete.emit()
         # self.glwindow.update()
 
+    @Watcher.watch_modify
     def on_freq_changed(self, value):
         self.source.freq_change(value)
         self.glwindow.update()
 
+    @Watcher.watch_modify
     def on_power_changed(self, value):
         self.source.power = value
         self.power_dbm.display(value)
@@ -92,14 +101,23 @@ class SourceControl(QWidget, Ui_SourceControl):
         self.glwindow.update()
 
     # spin控制位置事件
+    @Watcher.watch_modify
     def on_pos_x_changed(self, value):
         self.source.position[0] = value
         self.glwindow.update()
 
+    @Watcher.watch_modify
     def on_pos_y_changed(self, value):
         self.source.position[1] = value
         self.glwindow.update()
 
+    @Watcher.watch_modify
     def on_pos_z_changed(self, value):
         self.source.position[2] = value
         self.glwindow.update()
+
+    def on_modified(self):
+        self.source_modified.emit()
+
+    def on_saved(self):
+        self.modified = False

@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-
+import numpy as np
 from draw import *
 
 
@@ -270,7 +270,7 @@ if __name__ == "__main__":
     glutInitDisplayMode(displayMode)
 
     glutInitWindowSize(glwindow.WIN_W, glwindow.WIN_H)
-    glutCreateWindow('Triangle')
+    glutCreateWindow('Test')
 
     glwindow.init()
     glutDisplayFunc(glwindow.draw)

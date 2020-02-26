@@ -19,12 +19,6 @@
     <height>640</height>
    </size>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>3000</width>
-    <height>3000</height>
-   </size>
-  </property>
   <property name="font">
    <font>
     <family>Arial</family>
@@ -82,19 +76,21 @@
     </property>
     <addaction name="new_file"/>
     <addaction name="open_file"/>
+    <addaction name="separator"/>
     <addaction name="save_file"/>
+    <addaction name="save_as"/>
    </widget>
    <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="new_file">
    <property name="text">
-    <string>New</string>
+    <string>New...</string>
    </property>
   </action>
   <action name="open_file">
    <property name="text">
-    <string>Open</string>
+    <string>Open...</string>
    </property>
   </action>
   <action name="save_file">
@@ -106,6 +102,14 @@
    </property>
    <property name="visible">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="save_as">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
    </property>
   </action>
  </widget>

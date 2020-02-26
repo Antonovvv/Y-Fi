@@ -27,7 +27,7 @@ class GLWindow(QOpenGLWidget):
         self.zoom = 0
         self.building = building
         self.sources = []
-        self.active_source = 0
+        self.active_source = -1
         # self.grabKeyboard()
 
     def initializeGL(self):
