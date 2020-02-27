@@ -8,15 +8,17 @@ color_wall = [0.5, 0.5, 0.5]
 color_floor = [0.3, 0.3, 0.3]
 quad = [[-1, 1], [-1, -1], [1, -1], [1, 1], [-1, 1]]
 sqare = [[-1, -1], [-1, 1], [1, 1], [1, -1]]
-wall_alpha = 0.6
+weak_wall_alpha = 0.6
+hide_alpha = 0.2
 
 
-def draw_wall(position, size, thickness):
+def draw_wall(position, size, thickness, mode):
+    
     # position为底面中心位置[x, y, z]，size[length, width, height]，墙厚度thickness
     # 绘制内墙正面
     glDepthMask(GL_FALSE)
     glBegin(GL_QUADS)
-    glColor4f(color_wall[0], color_wall[1], color_wall[2], wall_alpha)
+    glColor4f(color_wall[0], color_wall[1], color_wall[2], weak_wall_alpha)
     glVertex3f(position[0] + size[0] / 2, position[1], position[2] + size[1] / 2)
     glVertex3f(position[0] + size[0] / 2, position[1] + size[2], position[2] + size[1] / 2)
     glVertex3f(position[0] - size[0] / 2, position[1] + size[2], position[2] + size[1] / 2)
@@ -26,7 +28,7 @@ def draw_wall(position, size, thickness):
     # 绘制外墙正面
     glDepthMask(GL_FALSE)
     glBegin(GL_QUADS)
-    glColor4f(color_wall[0], color_wall[1], color_wall[2], wall_alpha)
+    glColor4f(color_wall[0], color_wall[1], color_wall[2], weak_wall_alpha)
     glVertex3f(position[0] + size[0] / 2 + thickness, position[1], position[2] + size[1] / 2 + thickness)
     glVertex3f(position[0] + size[0] / 2 + thickness, position[1] + size[2], position[2] + size[1] / 2 + thickness)
     glVertex3f(position[0] - size[0] / 2 - thickness, position[1] + size[2], position[2] + size[1] / 2 + thickness)

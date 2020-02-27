@@ -29,8 +29,9 @@ class Main(QMainWindow, Ui_MainWindow):
 
     def on_new(self):
         name = "untitled_" + str(self.count)
-        new_glwindow = GLWindow(Building())     # 新建building实例，作为新建glwindow实例的参数
+        new_glwindow = GLWindow()     # 新建building实例，作为新建glwindow实例的参数
         new_page = FilePage(name=name, glwindow=new_glwindow)
+        new_page.new_building(None)
         self.tabWidget.addTab(new_page, name)
         self.tabWidget.setCurrentWidget(new_page)
         self.tabWidget.currentWidget().file_modified.connect(self.on_file_modified)  # 文件改动事件
@@ -48,9 +49,9 @@ class Main(QMainWindow, Ui_MainWindow):
                     return
             with open(filepath, 'rb') as f:
                 file = pickle.load(f)
-            glwindow = GLWindow(building=file['building'])
+            glwindow = GLWindow()
             model = FilePage(name=file['name'], glwindow=glwindow)
-            model.open_init(sources=file['sources'])
+            model.open_init(buildings=file['buildings'], sources=file['sources'])
             model.path = filepath
             self.tabWidget.addTab(model, file['name'])
             self.tabWidget.setCurrentWidget(model)
@@ -81,7 +82,7 @@ class Main(QMainWindow, Ui_MainWindow):
     def save_to(self, target, path):
         with open(path, 'wb') as f:
             content = dict(name=target.name,
-                           building=target.glwindow.building,
+                           buildings=target.glwindow.buildings,
                            sources=target.glwindow.sources)
             pickle.dump(content, f)
         target.on_saved()

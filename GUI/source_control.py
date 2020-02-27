@@ -63,12 +63,12 @@ class SourceControl(QWidget, Ui_SourceControl, Watcher):
     def on_lock_changed(self, state):
         if state == Qt.Checked:
             self.source.enable = False
-            self.switch_all(False)
+            self.enable_all(False)
         else:
             self.source.enable = True
-            self.switch_all(True)
+            self.enable_all(True)
 
-    def switch_all(self, enable):
+    def enable_all(self, enable):
         self.delete_button.setEnabled(enable)
         self.freq_selector.setEnabled(enable)
         self.power_slider.setEnabled(enable)

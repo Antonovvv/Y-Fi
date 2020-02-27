@@ -17,16 +17,20 @@ class GLWindow(QOpenGLWidget):
     MOUSE_X, MOUSE_Y = 0, 0                     # 考察鼠标位移量时保存的起始位置
     dx, dy, dz = 0, 0, 0                        # 观察点平移偏移量
 
+    building_x_changed = pyqtSignal(float)      # 建筑位置变化
+    building_z_changed = pyqtSignal(float)
+
     source_x_changed = pyqtSignal(float)        # 自定义wifi位置变化的信号
     source_y_changed = pyqtSignal(float)
     source_z_changed = pyqtSignal(float)
 
-    def __init__(self, building, parent=None):
+    def __init__(self, parent=None):
         super(GLWindow, self).__init__(parent)
         self.DIST, self.PHI, self.THETA = self.get_posture()  # 眼睛与观察目标之间的距离、仰角、方位角
         self.zoom = 0
-        self.building = building
+        self.buildings = []
         self.sources = []
+        self.active_building = -1
         self.active_source = -1
         # self.grabKeyboard()
 
@@ -91,7 +95,9 @@ class GLWindow(QOpenGLWidget):
         # 绘制地面
         draw_land(100)
         # 绘制房间
-        self.building.draw()
+        for building in self.buildings:
+            if building.show:
+                building.draw()
         # 绘制信号强度球面
         for source in self.sources:
             if source.show:
@@ -142,7 +148,7 @@ class GLWindow(QOpenGLWidget):
             self.DIST, self.PHI, self.THETA = self.get_posture()
             self.zoom -= 1
             self.update()
-        elif e.angleDelta().y() <= -120 and self.zoom < 15:
+        elif e.angleDelta().y() <= -120 and self.zoom < 20:
             self.EYE = self.LOOK_AT + (self.EYE - self.LOOK_AT) / 0.95
             self.DIST, self.PHI, self.THETA = self.get_posture()
             self.zoom += 1
@@ -190,19 +196,52 @@ class GLWindow(QOpenGLWidget):
                         self.sources[active].move('right')
                         self.source_x_changed.emit(self.sources[active].position[0])
                 self.update()
+        elif self.active_building >= 0:
+            active = self.active_building
+            if key in [Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right]:
+                if key == Qt.Key_Up:
+                    self.buildings[active].move('forward')
+                    self.building_z_changed.emit(self.buildings[active].position[2])
+                elif key == Qt.Key_Down:
+                    self.buildings[active].move('back')
+                    self.building_z_changed.emit(self.buildings[active].position[2])
+                elif key == Qt.Key_Left:
+                    self.buildings[active].move('left')
+                    self.building_x_changed.emit(self.buildings[active].position[0])
+                elif key == Qt.Key_Right:
+                    self.buildings[active].move('right')
+                    self.building_x_changed.emit(self.buildings[active].position[0])
 
 
 class Building:
     def __init__(self, floors=1, rooms=1, floor_thickness=0.3, room_length=10.0,
-                 room_width=5.0, room_height=5.0, wall_thickness=0.10):
+                 room_width=5.0, room_height=5.0, wall_thickness=0.10, pos_x=0.0, pos_z=0.0):
+        self.show = True
+        self.enable = True
         self.floors = floors
         self.rooms = rooms
         self.floor_thickness = floor_thickness
         self.room_size = [room_length, room_width, room_height]
         self.wall_thickness = wall_thickness
+        self.position = [pos_x, 0.0, pos_z]
+
+    def move(self, direction):
+        speed = 0.4
+        if self.enable and direction in ['forward', 'back', 'left', 'right']:
+            if direction == 'forward':
+                self.position[2] -= speed
+            elif direction == 'back':
+                self.position[2] += speed
+            elif direction == 'left':
+                self.position[0] -= speed
+            elif direction == 'right':
+                self.position[0] += speed
 
     def draw(self):
         # 绘制房间
+        glDepthMask(GL_FALSE)
+        glPushMatrix()
+        glTranslatef(self.position[0], self.position[1], self.position[2])
         for i in range(self.floors):
             for j in range(self.rooms):
                 if self.rooms % 2 == 0:
@@ -217,6 +256,9 @@ class Building:
             floor_length = self.rooms * (self.room_size[0] + 2 * self.wall_thickness)
             floor_width = self.room_size[1] + 2 * self.wall_thickness
             draw_floor(position=[0, floor_height, 0], length=floor_length, width=floor_width, thickness=self.floor_thickness)
+
+        glPopMatrix()
+        glDepthMask(GL_TRUE)
 
 
 class Source:
