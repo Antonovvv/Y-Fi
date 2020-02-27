@@ -16,8 +16,10 @@ class GLWindow(QOpenGLWidget):
     LEFT_IS_DOWNED = False                      # 鼠标左键被按下
     MOUSE_X, MOUSE_Y = 0, 0                     # 考察鼠标位移量时保存的起始位置
     dx, dy, dz = 0, 0, 0                        # 观察点平移偏移量
+    HIGHLIGHT = True                            # 自定义显示效果：当前选中建筑高亮
 
     building_x_changed = pyqtSignal(float)      # 建筑位置变化
+    building_y_changed = pyqtSignal(float)
     building_z_changed = pyqtSignal(float)
 
     source_x_changed = pyqtSignal(float)        # 自定义wifi位置变化的信号
@@ -95,7 +97,7 @@ class GLWindow(QOpenGLWidget):
         # 绘制地面
         draw_land(100)
         # 绘制房间
-        for building in self.buildings:
+        for index, building in enumerate(self.buildings):
             if building.show:
                 building.draw()
         # 绘制信号强度球面
@@ -148,7 +150,7 @@ class GLWindow(QOpenGLWidget):
             self.DIST, self.PHI, self.THETA = self.get_posture()
             self.zoom -= 1
             self.update()
-        elif e.angleDelta().y() <= -120 and self.zoom < 20:
+        elif e.angleDelta().y() <= -120 and self.zoom < 50:
             self.EYE = self.LOOK_AT + (self.EYE - self.LOOK_AT) / 0.95
             self.DIST, self.PHI, self.THETA = self.get_posture()
             self.zoom += 1
@@ -199,23 +201,31 @@ class GLWindow(QOpenGLWidget):
         elif self.active_building >= 0:
             active = self.active_building
             if key in [Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right]:
-                if key == Qt.Key_Up:
-                    self.buildings[active].move('forward')
-                    self.building_z_changed.emit(self.buildings[active].position[2])
-                elif key == Qt.Key_Down:
-                    self.buildings[active].move('back')
-                    self.building_z_changed.emit(self.buildings[active].position[2])
-                elif key == Qt.Key_Left:
-                    self.buildings[active].move('left')
-                    self.building_x_changed.emit(self.buildings[active].position[0])
-                elif key == Qt.Key_Right:
-                    self.buildings[active].move('right')
-                    self.building_x_changed.emit(self.buildings[active].position[0])
+                if mod == Qt.ControlModifier:
+                    if key == Qt.Key_Up:
+                        self.buildings[active].move('up')
+                        self.building_y_changed.emit(self.buildings[active].position[1])    # 传递当前位置信号
+                    elif key == Qt.Key_Down:
+                        self.buildings[active].move('down')
+                        self.building_y_changed.emit(self.buildings[active].position[1])
+                else:
+                    if key == Qt.Key_Up:
+                        self.buildings[active].move('forward')
+                        self.building_z_changed.emit(self.buildings[active].position[2])
+                    elif key == Qt.Key_Down:
+                        self.buildings[active].move('back')
+                        self.building_z_changed.emit(self.buildings[active].position[2])
+                    elif key == Qt.Key_Left:
+                        self.buildings[active].move('left')
+                        self.building_x_changed.emit(self.buildings[active].position[0])
+                    elif key == Qt.Key_Right:
+                        self.buildings[active].move('right')
+                        self.building_x_changed.emit(self.buildings[active].position[0])
 
 
 class Building:
     def __init__(self, floors=1, rooms=1, floor_thickness=0.3, room_length=10.0,
-                 room_width=5.0, room_height=5.0, wall_thickness=0.10, pos_x=0.0, pos_z=0.0):
+                 room_width=5.0, room_height=5.0, wall_thickness=0.10, rotate=0, pos_x=0.0, pos_y=0.0, pos_z=0.0):
         self.show = True
         self.enable = True
         self.floors = floors
@@ -223,12 +233,18 @@ class Building:
         self.floor_thickness = floor_thickness
         self.room_size = [room_length, room_width, room_height]
         self.wall_thickness = wall_thickness
-        self.position = [pos_x, 0.0, pos_z]
+
+        self.rotate = rotate
+        self.position = [pos_x, pos_y, pos_z]
 
     def move(self, direction):
         speed = 0.4
-        if self.enable and direction in ['forward', 'back', 'left', 'right']:
-            if direction == 'forward':
+        if self.enable and direction in ['up', 'down', 'forward', 'back', 'left', 'right']:
+            if direction == 'up':
+                self.position[1] += speed
+            elif direction == 'down':
+                self.position[1] -= speed
+            elif direction == 'forward':
                 self.position[2] -= speed
             elif direction == 'back':
                 self.position[2] += speed
@@ -237,11 +253,12 @@ class Building:
             elif direction == 'right':
                 self.position[0] += speed
 
-    def draw(self):
+    def draw(self, mode=''):
         # 绘制房间
-        glDepthMask(GL_FALSE)
+        # glDepthMask(GL_FALSE)
         glPushMatrix()
         glTranslatef(self.position[0], self.position[1], self.position[2])
+        glRotatef(self.rotate, 0, 1, 0)
         for i in range(self.floors):
             for j in range(self.rooms):
                 if self.rooms % 2 == 0:
@@ -255,10 +272,11 @@ class Building:
             floor_height = self.room_size[2] + (self.room_size[2] + self.floor_thickness) * i
             floor_length = self.rooms * (self.room_size[0] + 2 * self.wall_thickness)
             floor_width = self.room_size[1] + 2 * self.wall_thickness
-            draw_floor(position=[0, floor_height, 0], length=floor_length, width=floor_width, thickness=self.floor_thickness)
+            draw_floor(position=[0, floor_height, 0], length=floor_length, width=floor_width,
+                       thickness=self.floor_thickness)
 
         glPopMatrix()
-        glDepthMask(GL_TRUE)
+        # glDepthMask(GL_TRUE)
 
 
 class Source:

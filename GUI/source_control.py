@@ -36,6 +36,7 @@ class SourceControl(QWidget, Ui_SourceControl, Watcher):
 
         self.show_check.setChecked(self.source.show)
         self.lock_check.setChecked(not self.source.enable)
+        self.enable_all(self.source.enable)
 
     def add_event(self):
         self.show_check.stateChanged.connect(self.on_show_changed)

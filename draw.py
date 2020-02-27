@@ -10,10 +10,11 @@ quad = [[-1, 1], [-1, -1], [1, -1], [1, 1], [-1, 1]]
 sqare = [[-1, -1], [-1, 1], [1, 1], [1, -1]]
 weak_wall_alpha = 0.6
 hide_alpha = 0.2
+custom_alpha = 1.0
 
 
-def draw_wall(position, size, thickness, mode):
-    
+def draw_wall(position, size, thickness):
+
     # position为底面中心位置[x, y, z]，size[length, width, height]，墙厚度thickness
     # 绘制内墙正面
     glDepthMask(GL_FALSE)

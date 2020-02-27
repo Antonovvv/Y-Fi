@@ -30,6 +30,15 @@ class BuildingControl(QWidget, Ui_BuildingControl, Watcher):
         self.spin_room_height.setValue(self.building.room_size[2])
         self.spin_wall_thickness.setValue(self.building.wall_thickness)
 
+        self.spin_rotate.setValue(self.building.rotate)
+        self.spin_x.setValue(self.building.position[0])
+        self.spin_y.setValue(self.building.position[1])
+        self.spin_z.setValue(self.building.position[2])
+
+        self.show_check.setChecked(self.building.show)
+        self.lock_check.setChecked(not self.building.enable)
+        self.enable_all(self.building.enable)
+
     def add_event(self):
         self.show_check.stateChanged.connect(self.on_show_changed)
         self.lock_check.stateChanged.connect(self.on_lock_changed)
@@ -43,7 +52,9 @@ class BuildingControl(QWidget, Ui_BuildingControl, Watcher):
         self.spin_room_height.valueChanged[float].connect(self.on_room_height_changed)
         self.spin_wall_thickness.valueChanged[float].connect(self.on_wall_changed)
 
+        self.spin_rotate.valueChanged[int].connect(self.on_rotate)
         self.spin_x.valueChanged[float].connect(self.on_pos_x_changed)
+        self.spin_y.valueChanged[float].connect(self.on_pos_y_changed)
         self.spin_z.valueChanged[float].connect(self.on_pos_z_changed)
 
     @Watcher.watch_modify
@@ -76,14 +87,30 @@ class BuildingControl(QWidget, Ui_BuildingControl, Watcher):
         self.spin_room_height.setEnabled(enable)
         self.spin_wall_thickness.setEnabled(enable)
 
+        self.spin_rotate.setEnabled(enable)
+        self.spin_x.setEnabled(enable)
+        self.spin_y.setEnabled(enable)
+        self.spin_z.setEnabled(enable)
+
     @Watcher.watch_modify
     def delete(self, e):
         self.building_delete.emit()
+
+    # spin控制旋转
+    @Watcher.watch_modify
+    def on_rotate(self, value):
+        self.building.rotate = value
+        self.glwindow.update()
 
     # spin控制位置事件,也可由方向键控制触发
     @Watcher.watch_modify
     def on_pos_x_changed(self, value):
         self.building.position[0] = value
+        self.glwindow.update()
+
+    @Watcher.watch_modify
+    def on_pos_y_changed(self, value):
+        self.building.position[1] = value
         self.glwindow.update()
 
     @Watcher.watch_modify

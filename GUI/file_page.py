@@ -36,12 +36,14 @@ class FilePage(QWidget, Ui_FilePage, Watcher):
 
     def add_event(self):
         self.glwindow.building_x_changed[float].connect(self.building_x_changed)
+        self.glwindow.building_y_changed[float].connect(self.building_y_changed)
         self.glwindow.building_z_changed[float].connect(self.building_z_changed)
 
         self.glwindow.source_x_changed[float].connect(self.source_x_changed)
         self.glwindow.source_y_changed[float].connect(self.source_y_changed)
         self.glwindow.source_z_changed[float].connect(self.source_z_changed)
 
+        self.highlight_check.stateChanged.connect(self.on_building_highlight)
         self.building_selector.activated[int].connect(self.on_building_selected)
         self.new_building_button.clicked.connect(self.new_building)
 
@@ -52,6 +54,10 @@ class FilePage(QWidget, Ui_FilePage, Watcher):
     def building_x_changed(self, value):
         active = self.glwindow.active_building
         self.stackedBuilding.widget(active).spin_x.setValue(value)
+
+    def building_y_changed(self, value):
+        active = self.glwindow.active_building
+        self.stackedBuilding.widget(active).spin_y.setValue(value)
 
     def building_z_changed(self, value):
         active = self.glwindow.active_building
@@ -69,6 +75,13 @@ class FilePage(QWidget, Ui_FilePage, Watcher):
     def source_z_changed(self, value):
         active = self.glwindow.active_source
         self.stackedSource.widget(active).spin_z.setValue(value)
+
+    def on_building_highlight(self, state):
+        if state == Qt.Checked:
+            self.glwindow.HIGHLIGHT = True
+        else:
+            self.glwindow.HIGHLIGHT = False
+        self.glwindow.update()
 
     def on_building_selected(self, value):
         self.stackedBuilding.setCurrentIndex(value)
