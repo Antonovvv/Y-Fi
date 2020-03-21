@@ -7,7 +7,7 @@ from UI.ui_file_page import *
 from GUI.building_control import BuildingControl
 from GUI.source_control import SourceControl
 
-from model import GLWindow, Building, Source
+from model import Building, Source
 from ext import Watcher
 
 

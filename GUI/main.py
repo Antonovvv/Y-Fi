@@ -6,8 +6,7 @@ import pickle
 
 from UI.ui_main import *
 from GUI.file_page import FilePage
-
-from model import GLWindow, Building
+from GUI.gl_window import GLWindow
 
 
 class Main(QMainWindow, Ui_MainWindow):

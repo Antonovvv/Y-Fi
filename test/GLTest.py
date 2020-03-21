@@ -20,7 +20,7 @@ class GLWindow:
         self.DIST, self.PHI, self.THETA = self.getposture()  # 眼睛与观察目标之间的距离、仰角、方位角
         self.floors = 1
         self.sources = [1]
-        self.power = 15                 # 发射功率默认15dBm,31.6mW
+        self.power = 11                 # 发射功率默认15dBm,31.6mW
         self.wifi_type = 0
         self.freqs = [5000, 2400]       # 发射频率默认5GHz
         self.damping = [20, 25]         # 衰减补偿值

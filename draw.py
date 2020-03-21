@@ -2,6 +2,7 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+import numpy as np
 
 color_land = [0.9, 0.9, 0.9]
 color_wall = [0.5, 0.5, 0.5]
